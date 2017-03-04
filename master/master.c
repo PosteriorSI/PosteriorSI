@@ -301,21 +301,21 @@ void InitRecord(void)
     		uint64_t temp[4];
     		if (buf[j][0] > buf[j+1][0])
     		{
-    			temp[0] = buf[j][0];
-    			temp[1] = buf[j][1];
-    			temp[2] = buf[j][2];
-    			temp[3] = buf[j][3];
-    			temp[4] = buf[j][4];
-    			buf[j][0] = buf[j+1][0];
-    			buf[j][1] = buf[j+1][1];
-    			buf[j][2] = buf[j+1][2];
-    			buf[j][3] = buf[j+1][3];
-    			buf[j][4] = buf[j+1][4];
-                buf[j+1][0] = temp[0];
-                buf[j+1][1] = temp[1];
-                buf[j+1][2] = temp[2];
-                buf[j+1][3] = temp[3];
-                buf[j+1][4] = temp[4];
+    	    temp[0] = buf[j][0];
+          temp[1] = buf[j][1];
+          temp[2] = buf[j][2];
+          temp[3] = buf[j][3];
+          temp[4] = buf[j][4];
+          buf[j][0] = buf[j+1][0];
+          buf[j][1] = buf[j+1][1];
+          buf[j][2] = buf[j+1][2];
+          buf[j][3] = buf[j+1][3];
+          buf[j][4] = buf[j+1][4];
+          buf[j+1][0] = temp[0];
+          buf[j+1][1] = temp[1];
+          buf[j+1][2] = temp[2];
+          buf[j+1][3] = temp[3];
+          buf[j+1][4] = temp[4];
     		}
     	}
 
@@ -323,7 +323,10 @@ void InitRecord(void)
     printf("\n");
     for (i = 0; i < NODENUM; i++)
     {
-    	printf("ip%ld %ld %ld %ld %ld\n", buf[i][0], buf[i][1], buf[i][2], buf[i][3], buf[i][4]);
+        struct in_addr help;
+        help.s_addr = (in_addr_t)buf[i][0];
+        char * result = inet_ntoa(help);
+        printf("%s %ld %ld %ld %ld\n", result, buf[i][1], buf[i][2], buf[i][3], buf[i][4]);
     }
     //now we can reform the node to begin to run the transaction.
 }

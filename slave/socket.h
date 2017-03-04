@@ -8,7 +8,6 @@
 #define NODENUMMAX 50
 #define THREADNUMMAX 64
 #define LINEMAX 20
-#define IP_PREFIX "127.0.0."
 
 #define SEND_BUFFER_MAXSIZE 100
 #define RECV_BUFFER_MAXSIZE 1000
@@ -41,7 +40,6 @@ extern int nodenum;
 extern int threadnum;
 extern int port_base;
 extern int record_port;
-extern int ip_suffix;
 
 extern int message_socket;
 extern int param_socket;

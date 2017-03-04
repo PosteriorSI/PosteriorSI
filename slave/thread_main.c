@@ -12,6 +12,8 @@
 #include<unistd.h>
 #include<assert.h>
 #include<sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include"config.h"
 #include"util.h"
@@ -297,8 +299,10 @@ void EndReport(TransState* StateInfo, int terminals)
 
         printf("nodenum = %d sleeptime=%d, terminals=%d\n", nodenum, SleepTime, terminals);
 
+        in_addr_t help = inet_addr(local_ip);
+
         uint64_t buf[4];
-        buf[0] = (uint64_t)ip_suffix;
+        buf[0] = (uint64_t)help;
         buf[1] = (uint64_t)tpmC;
         buf[2] = (uint64_t)tpmTotal;
         buf[3] = transactionAbort;
@@ -351,8 +355,10 @@ void EndReportBank(TransState* StateInfo, int terminals)
 
         printf("nodenum = %d sleeptime=%d, terminals=%d\n", nodenum, SleepTime, terminals);
 
+        in_addr_t help = inet_addr(local_ip);
+
         uint64_t buf[5];
-        buf[0] = (uint64_t)ip_suffix;
+        buf[0] = (uint64_t)help;
         buf[1] = (uint64_t)tpmC;
         buf[2] = (uint64_t)tpmTotal;
         buf[3] = transactionAbort;

@@ -493,50 +493,64 @@ int RecordFind(int table_id, TupleId r)
 
    int bucket_size=BucketSize[table_id];
 
-   switch(table_id)
+   switch(benchmarkType)
    {
-    case Accounts_ID:
-		bucket_id=(r-1)/configAccountsPerBucket;
-		break;
-	case Savings_ID:
-		bucket_id=(r-1)/configAccountsPerBucket;
-		break;
-	case Checking_ID:
-		bucket_id=(r-1)/configAccountsPerBucket;
-		break;
-	default:
-		printf("table_ID error %d\n", table_id);
-   		/*
-   	   case Order_ID:
-   	   case NewOrder_ID:
-   	   case OrderLine_ID:
-   		   w_id=(int)((r/ORDER_ID)%WHSE_ID);
-   		   d_id=(int)((r/(ORDER_ID*WHSE_ID))%DIST_ID);
-   		   bucket_id=(w_id-1)*10+(d_id-1);
-   		   break;
-   	   case Customer_ID:
-   	   case History_ID:
-   		   w_id=(int)((r/CUST_ID)%WHSE_ID);
-   		   d_id=(int)((r/(CUST_ID*WHSE_ID))%DIST_ID);
-   		   bucket_id=(w_id-1)*10+(d_id-1);
-   		   break;
-   	   case District_ID:
-   		   w_id=(int)(r%WHSE_ID);
-   		   bucket_id=w_id-1;
-   		   break;
-   	   case Stock_ID:
-   		   w_id=(int)((r/ITEM_ID)%WHSE_ID);
-   		   bucket_id=w_id-1;
-   		   break;
-   	   case Item_ID:
-   		   bucket_id=0;
-   		   break;
-   	   case Warehouse_ID:
-   		   bucket_id=0;
-   		   break;
-   	   default:
-   		   printf("table_ID error %d\n", table_id);
-		   */
+   case SMALLBANK:
+   {
+	   switch(table_id)
+	   {
+			case Accounts_ID:
+				bucket_id=(r-1)/configAccountsPerBucket;
+				break;
+			case Savings_ID:
+				bucket_id=(r-1)/configAccountsPerBucket;
+				break;
+			case Checking_ID:
+				bucket_id=(r-1)/configAccountsPerBucket;
+				break;
+			default:
+				printf("table_ID error %d\n", table_id);
+	   }
+   }
+   break;
+   case TPCC:
+   {
+	   switch(table_id)
+	   {
+		   case Order_ID:
+		   case NewOrder_ID:
+		   case OrderLine_ID:
+			   w_id=(int)((r/ORDER_ID)%WHSE_ID);
+			   d_id=(int)((r/(ORDER_ID*WHSE_ID))%DIST_ID);
+			   bucket_id=(w_id-1)*10+(d_id-1);
+			   break;
+		   case Customer_ID:
+		   case History_ID:
+			   w_id=(int)((r/CUST_ID)%WHSE_ID);
+			   d_id=(int)((r/(CUST_ID*WHSE_ID))%DIST_ID);
+			   bucket_id=(w_id-1)*10+(d_id-1);
+			   break;
+		   case District_ID:
+			   w_id=(int)(r%WHSE_ID);
+			   bucket_id=w_id-1;
+			   break;
+		   case Stock_ID:
+			   w_id=(int)((r/ITEM_ID)%WHSE_ID);
+			   bucket_id=w_id-1;
+			   break;
+		   case Item_ID:
+			   bucket_id=0;
+			   break;
+		   case Warehouse_ID:
+			   bucket_id=0;
+			   break;
+		   default:
+			   printf("table_ID error %d\n", table_id);
+	   }
+   }
+   break;
+   default:
+	   printf("benchmark undefined\n");
    }
 
    min=bucket_size*bucket_id;
@@ -681,50 +695,64 @@ int RecordFindHole(int table_id, TupleId r, int *flag)
     assert(TableList != NULL);
     THash HashTable = TableList[table_id];   //HashTable is a pointer to a particular table refer to.
 	
-	switch(table_id)
+    switch(benchmarkType)
     {
-    case Accounts_ID:
-		bucket_id=(r-1)/configAccountsPerBucket;
-		break;
-	case Savings_ID:
-		bucket_id=(r-1)/configAccountsPerBucket;
-		break;
-	case Checking_ID:
-		bucket_id=(r-1)/configAccountsPerBucket;
-		break;
-	default:
-		printf("table_ID error %d\n", table_id);
-    	/*
-    	case Order_ID:
-    	case NewOrder_ID:
-    	case OrderLine_ID:
-    		w_id=(int)((r/ORDER_ID)%WHSE_ID);
-    		d_id=(int)((r/(ORDER_ID*WHSE_ID))%DIST_ID);
-    		bucket_id=(w_id-1)*10+(d_id-1);
-    		break;
-    	case Customer_ID:
-    	case History_ID:
-    		w_id=(int)((r/CUST_ID)%WHSE_ID);
-    		d_id=(int)((r/(CUST_ID*WHSE_ID))%DIST_ID);
-    		bucket_id=(w_id-1)*10+(d_id-1);
-    		break;
-    	case District_ID:
-    		w_id=(int)(r%WHSE_ID);
-    		bucket_id=w_id-1;
-    		break;
-    	case Stock_ID:
-    		w_id=(int)((r/ITEM_ID)%WHSE_ID);
-    		bucket_id=w_id-1;
-    		break;
-    	case Item_ID:
-    		bucket_id=0;
-    		break;
-    	case Warehouse_ID:
-    		bucket_id=0;
-    		break;
-    	default:
-    		printf("table_ID error %d\n", table_id);
-    		*/
+    case SMALLBANK:
+    {
+		switch(table_id)
+		{
+			case Accounts_ID:
+				bucket_id=(r-1)/configAccountsPerBucket;
+				break;
+			case Savings_ID:
+				bucket_id=(r-1)/configAccountsPerBucket;
+				break;
+			case Checking_ID:
+				bucket_id=(r-1)/configAccountsPerBucket;
+				break;
+			default:
+				printf("table_ID error %d\n", table_id);
+		}
+    }
+    break;
+    case TPCC:
+    {
+		switch(table_id)
+		{
+			case Order_ID:
+			case NewOrder_ID:
+			case OrderLine_ID:
+				w_id=(int)((r/ORDER_ID)%WHSE_ID);
+				d_id=(int)((r/(ORDER_ID*WHSE_ID))%DIST_ID);
+				bucket_id=(w_id-1)*10+(d_id-1);
+				break;
+			case Customer_ID:
+			case History_ID:
+				w_id=(int)((r/CUST_ID)%WHSE_ID);
+				d_id=(int)((r/(CUST_ID*WHSE_ID))%DIST_ID);
+				bucket_id=(w_id-1)*10+(d_id-1);
+				break;
+			case District_ID:
+				w_id=(int)(r%WHSE_ID);
+				bucket_id=w_id-1;
+				break;
+			case Stock_ID:
+				w_id=(int)((r/ITEM_ID)%WHSE_ID);
+				bucket_id=w_id-1;
+				break;
+			case Item_ID:
+				bucket_id=0;
+				break;
+			case Warehouse_ID:
+				bucket_id=0;
+				break;
+			default:
+				printf("table_ID error %d\n", table_id);
+		}
+    }
+    break;
+    default:
+    	printf("benchmark undefined\n");
     }
 
 	min=bucket_size*bucket_id;

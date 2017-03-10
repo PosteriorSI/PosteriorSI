@@ -67,8 +67,8 @@ int random_read_limit;
 
 void InitConfig(void)
 {
-   benchmarkType=SMALLBANK;
-   TABLENUM=SMALLBANK_TABLENUM;
+   benchmarkType=TPCC;
+   TABLENUM=TPCC_TABLENUM;
 
    transactionsPerTerminal=1000;
    paymentWeightValue=43;
@@ -77,11 +77,11 @@ void InitConfig(void)
    stockLevelWeightValue=4;
    limPerMin_Terminal=0;
 
-   configWhseCount=5;
+   configWhseCount=1;
    configDistPerWhse=10;
-   configCustPerDist=3000;
+   configCustPerDist=300;
    MaxBucketSize=1000000;
-   configUniqueItems=100000;
+   configUniqueItems=1000;
 
    configCommitCount=60;
 

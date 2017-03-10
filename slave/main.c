@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
     {
     	/* shmget the shared memory address*/
     	//BindShmem();
-    	/*
+
 		if(freopen("service_log.txt", "w", stdout)==NULL)
 		{
 			printf("redirection stdout error\n");
 			exit(-1);
 		}
-		*/
+
 
     	InitStorage();
 

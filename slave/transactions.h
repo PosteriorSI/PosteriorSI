@@ -59,59 +59,59 @@
 
 typedef enum
 {
-	NEW_ORDER,
-	PAYMENT,
-	DELIVERY,
-	ORDER_STATUS,
-	STOCK_LEVEL,
+    NEW_ORDER,
+    PAYMENT,
+    DELIVERY,
+    ORDER_STATUS,
+    STOCK_LEVEL,
 
-	//smallbank
-	AMALGAMATE,
-	BALANCE,
-	DEPOSITCHECKING,
-	SENDPAYMENT,
-	TRANSACTSAVINGS,
-	WRITECHECK
+    //smallbank
+    AMALGAMATE,
+    BALANCE,
+    DEPOSITCHECKING,
+    SENDPAYMENT,
+    TRANSACTSAVINGS,
+    WRITECHECK
 }TransactionsType;
 
 typedef struct TransState
 {
-	int trans_commit;
-	int trans_abort;
-	int NewOrder;
-	int Payment;
-	int Delivery;
-	int Stock_level;
-	int Order_status;
+    int trans_commit;
+    int trans_abort;
+    int NewOrder;
+    int Payment;
+    int Delivery;
+    int Stock_level;
+    int Order_status;
 
-	int global_total;
-	int global_abort;
-	int extend_abort;
+    int global_total;
+    int global_abort;
+    int extend_abort;
 
-	int NewOrder_C;
-	int Payment_C;
-	int Stock_level_C;
+    int NewOrder_C;
+    int Payment_C;
+    int Stock_level_C;
 
-	//smallbank
-	int Amalgamate;
-	int Balance;
-	int DepositChecking;
-	int SendPayment;
-	int TransactSavings;
-	int WriteCheck;
+    //smallbank
+    int Amalgamate;
+    int Balance;
+    int DepositChecking;
+    int SendPayment;
+    int TransactSavings;
+    int WriteCheck;
 
-	int Amalgamate_C;
-	int Balance_C;
-	int DepositChecking_C;
-	int SendPayment_C;
-	int TransactSavings_C;
-	int WriteCheck_C;
+    int Amalgamate_C;
+    int Balance_C;
+    int DepositChecking_C;
+    int SendPayment_C;
+    int TransactSavings_C;
+    int WriteCheck_C;
 }TransState;
 
 typedef enum
 {
-	TPCC,
-	SMALLBANK
+    TPCC,
+    SMALLBANK
 }BENCHMARK;
 
 extern BENCHMARK benchmarkType;

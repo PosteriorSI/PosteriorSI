@@ -24,45 +24,45 @@ pthread_spinlock_t * ProcArrayElemLock;
 
 Size ProcLatchArraySize(void)
 {
-	return THREADNUM*sizeof(pthread_spinlock_t);
+    return THREADNUM*sizeof(pthread_spinlock_t);
 }
 
 /* initialize the lock on ProcArray and Invisible. */
 void InitProcLatchArray(void)
 {
-	Size size;
-	int i;
+    Size size;
+    int i;
 
-	size=ProcLatchArraySize();
+    size=ProcLatchArraySize();
 
-	ProcArrayElemLock=(pthread_spinlock_t*)ShmemAlloc(size);
+    ProcArrayElemLock=(pthread_spinlock_t*)ShmemAlloc(size);
 
-	if(ProcArrayElemLock == NULL)
-	{
-		printf("shmem proc-latch array error\n");
-		exit(-1);
-	}
+    if(ProcArrayElemLock == NULL)
+    {
+        printf("shmem proc-latch array error\n");
+        exit(-1);
+    }
 
-	for(i=0;i<THREADNUM;i++)
-	{
-		pthread_spin_init(&ProcArrayElemLock[i],PTHREAD_PROCESS_SHARED);
-	}
+    for(i=0;i<THREADNUM;i++)
+    {
+        pthread_spin_init(&ProcArrayElemLock[i],PTHREAD_PROCESS_SHARED);
+    }
 }
 
 void InitTransactionLock(void)
 {
-	pthread_rwlockattr_t attr;
-	pthread_rwlockattr_init(&attr);
-	pthread_rwlockattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-	pthread_rwlock_init(&CommitProcArrayLock, &attr);
-	pthread_rwlock_init(&ProcCommitLock, &attr);
+    pthread_rwlockattr_t attr;
+    pthread_rwlockattr_init(&attr);
+    pthread_rwlockattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+    pthread_rwlock_init(&CommitProcArrayLock, &attr);
+    pthread_rwlock_init(&ProcCommitLock, &attr);
 }
 
 void InitStorageLock(void)
 {
-	pthread_rwlockattr_t attr;
-	pthread_rwlockattr_init(&attr);
-	pthread_rwlockattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+    pthread_rwlockattr_t attr;
+    pthread_rwlockattr_init(&attr);
+    pthread_rwlockattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
 }
 
 /*
@@ -70,14 +70,14 @@ void InitStorageLock(void)
  */
 void AcquireWrLock(pthread_rwlock_t* lock, LockMode mode)
 {
-	if(mode == LOCK_SHARED)
-	{
-		pthread_rwlock_rdlock(lock);
-	}
-	else
-	{
-		pthread_rwlock_wrlock(lock);
-	}
+    if(mode == LOCK_SHARED)
+    {
+        pthread_rwlock_rdlock(lock);
+    }
+    else
+    {
+        pthread_rwlock_wrlock(lock);
+    }
 }
 
 /*
@@ -85,5 +85,5 @@ void AcquireWrLock(pthread_rwlock_t* lock, LockMode mode)
  */
 void ReleaseWrLock(pthread_rwlock_t* lock)
 {
-	pthread_rwlock_unlock(lock);
+    pthread_rwlock_unlock(lock);
 }

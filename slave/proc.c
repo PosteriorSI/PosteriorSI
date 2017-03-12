@@ -35,43 +35,43 @@ void InitProcHead(int flag)
    prohd=(PROCHEAD*)malloc(sizeof(PROCHEAD));
    //in transaction process.
    if(flag==0)
-	   prohd->maxprocs=THREADNUM+1;
+       prohd->maxprocs=THREADNUM+1;
    //in service process.
    else
-	   prohd->maxprocs=NODENUM*THREADNUM+1;
+       prohd->maxprocs=NODENUM*THREADNUM+1;
    prohd->numprocs=0;
 }
 
 /* Proc information should be stored in the shared memory. */
 void InitProcArray(void)
 {
-	Size size;
-	int i;
-	PROC* proc;
+    Size size;
+    int i;
+    PROC* proc;
 
-	//initialize the 'proccommit'.
-	//proccommit=(PROCCOMMIT*)malloc(sizeof(PROCCOMMIT));
-	//proccommit->index=-1;
-	//proccommit->tid=InvalidTransactionId;
+    //initialize the 'proccommit'.
+    //proccommit=(PROCCOMMIT*)malloc(sizeof(PROCCOMMIT));
+    //proccommit->index=-1;
+    //proccommit->tid=InvalidTransactionId;
 
-	//initialize the process array.
-	size=ProcArraySize();
+    //initialize the process array.
+    size=ProcArraySize();
 
-	procbase=(PROC*)ShmemAlloc(size);
+    procbase=(PROC*)ShmemAlloc(size);
 
-	if(procbase == NULL)
-	{
-		printf("shmem procbase error\n");
-		exit(-1);
-	}
+    if(procbase == NULL)
+    {
+        printf("shmem procbase error\n");
+        exit(-1);
+    }
 
-	memset((char*)procbase,0,size);
+    memset((char*)procbase,0,size);
 
-	for(i=0;i<THREADNUM;i++)
-	{
-		proc=(PROC*)((char*)procbase+i*sizeof(PROC));
-		proc->index=i;
-	}
+    for(i=0;i<THREADNUM;i++)
+    {
+        proc=(PROC*)((char*)procbase+i*sizeof(PROC));
+        proc->index=i;
+    }
 }
 
 void *ProcStart(void* args)
@@ -102,7 +102,7 @@ void *ProcStart(void* args)
    if(threadinfo==NULL)
    {
       printf("memory alloc error during process running.\n");
-	  exit(-1);
+      exit(-1);
    }
 
    pthread_setspecific(ThreadInfoKey,threadinfo);
@@ -126,7 +126,7 @@ void *ProcStart(void* args)
    {
       for (j = 0; j < NODENUM; j++)
       {
-	     InitClient(j, i);
+         InitClient(j, i);
       }
    }
    else
@@ -145,120 +145,120 @@ void *ProcStart(void* args)
  */
 void *TransactionProcStart(void* args)
 {
-	   int i;
-	   int j;
-	   char* start=NULL;
-	   THREAD* threadinfo;
+       int i;
+       int j;
+       char* start=NULL;
+       THREAD* threadinfo;
 
-	   int type;
+       int type;
 
-	   Size size;
+       Size size;
 
-	   terminalArgs* param=(terminalArgs*)args;
+       terminalArgs* param=(terminalArgs*)args;
 
-	   type=param->type;
+       type=param->type;
 
-	   pthread_mutex_lock(&prohd->ilock);
-	   i=prohd->numprocs++;
-	   pthread_mutex_unlock(&prohd->ilock);
+       pthread_mutex_lock(&prohd->ilock);
+       i=prohd->numprocs++;
+       pthread_mutex_unlock(&prohd->ilock);
 
-	   start=(char*)MemStart+MEM_PROC_SIZE*i;
+       start=(char*)MemStart+MEM_PROC_SIZE*i;
 
-	   size=sizeof(THREAD);
+       size=sizeof(THREAD);
 
-	   threadinfo=(THREAD*)MemAlloc((void*)start,size);
+       threadinfo=(THREAD*)MemAlloc((void*)start,size);
 
-	   if(threadinfo==NULL)
-	   {
-	      printf("memory alloc error during process running.\n");
-		  exit(-1);
-	   }
+       if(threadinfo==NULL)
+       {
+          printf("memory alloc error during process running.\n");
+          exit(-1);
+       }
 
-	   pthread_setspecific(ThreadInfoKey,threadinfo);
+       pthread_setspecific(ThreadInfoKey,threadinfo);
 
-	   threadinfo->index= nodeid*THREADNUM+i;
-	   threadinfo->memstart=(char*)start;
+       threadinfo->index= nodeid*THREADNUM+i;
+       threadinfo->memstart=(char*)start;
 
-	   if(type==1 && i ==0)
-	      threadinfo->curid=thread_0_tid+1;
-	   else
-	      threadinfo->curid=threadinfo->index*MaxTransId+1;
+       if(type==1 && i ==0)
+          threadinfo->curid=thread_0_tid+1;
+       else
+          threadinfo->curid=threadinfo->index*MaxTransId+1;
 
-	   /* initialize the transaction ID assignment for per thread. */
-	   ProcTransactionIdAssign(threadinfo);
+       /* initialize the transaction ID assignment for per thread. */
+       ProcTransactionIdAssign(threadinfo);
 
-	   InitRandomSeed();
+       InitRandomSeed();
 
-	   InitTransactionStructMemAlloc();
+       InitTransactionStructMemAlloc();
 
-	   if (type == 1)
-	   {
-	      for (j = 0; j < NODENUM; j++)
-	      {
-		     InitClient(j, i);
-	      }
-	   }
-	   else
-	   {
-	      InitClient(nodeid, i);
-	   }
+       if (type == 1)
+       {
+          for (j = 0; j < NODENUM; j++)
+          {
+             InitClient(j, i);
+          }
+       }
+       else
+       {
+          InitClient(nodeid, i);
+       }
 
-	   /* start running transactions here. */
-	   TransactionRunSchedule(args);
+       /* start running transactions here. */
+       TransactionRunSchedule(args);
 
-	   return NULL;
+       return NULL;
 }
 
 void* ServiceProcStart(void* args)
 {
-	int i;
-	//terminalArgs *temp;
-	//temp = (terminalArgs*) args;
-	server_arg* temp;
-	temp=(server_arg*)args;
+    int i;
+    //terminalArgs *temp;
+    //temp = (terminalArgs*) args;
+    server_arg* temp;
+    temp=(server_arg*)args;
 
-	char* start=NULL;
-	THREAD* threadinfo;
+    char* start=NULL;
+    THREAD* threadinfo;
 
-	Size size;
+    Size size;
 
-	pthread_mutex_lock(&prohd->ilock);
-	i=prohd->numprocs++;
-	pthread_mutex_unlock(&prohd->ilock);
+    pthread_mutex_lock(&prohd->ilock);
+    i=prohd->numprocs++;
+    pthread_mutex_unlock(&prohd->ilock);
 
-	start=(char*)MemStart+MEM_PROC_SIZE*i;
+    start=(char*)MemStart+MEM_PROC_SIZE*i;
 
-	//memset(start, 0, MEM_PROC_SIZE);
+    //memset(start, 0, MEM_PROC_SIZE);
 
-	size=sizeof(THREAD);
+    size=sizeof(THREAD);
 
-	threadinfo=(THREAD*)MemAlloc((void*)start,size);
+    threadinfo=(THREAD*)MemAlloc((void*)start,size);
 
-	if(threadinfo==NULL)
-	{
-		printf("memory alloc error during process running.\n");
-		exit(-1);
-	}
+    if(threadinfo==NULL)
+    {
+        printf("memory alloc error during process running.\n");
+        exit(-1);
+    }
 
-	pthread_setspecific(ThreadInfoKey,threadinfo);
+    pthread_setspecific(ThreadInfoKey,threadinfo);
 
-	//global index for thread
-	threadinfo->index=i;
-	threadinfo->memstart=(char*)start;
+    //global index for thread
+    threadinfo->index=i;
+    threadinfo->memstart=(char*)start;
 
-	InitServiceStructMemAlloc();
+    InitServiceStructMemAlloc();
 
-	temp->index=i;
+    temp->index=i;
 
-	//ready for response.
-	Respond((void*)temp);
+    //ready for response.
+    Respond((void*)temp);
 
-	return NULL;
+    return NULL;
 }
 
 Size ProcArraySize(void)
 {
-	return sizeof(PROC)*THREADNUM;
+    return sizeof(PROC)*THREADNUM;
 }
 
 /*
@@ -267,20 +267,20 @@ Size ProcArraySize(void)
  */
 int IsPairConflict(int index, CommitId cid)
 {
-	PROC* proc;
-	Size offset;
-	int conflict;
+    PROC* proc;
+    Size offset;
+    int conflict;
 
-	offset=index*sizeof(PROC);
+    offset=index*sizeof(PROC);
 
-	proc=(PROC*)((char*)procbase+offset);
+    proc=(PROC*)((char*)procbase+offset);
 
-	/* add lock to access. */
-	pthread_spin_lock(&ProcArrayElemLock[index]);
-	conflict=(cid > proc->sid_min)?0:1;
-	pthread_spin_unlock(&ProcArrayElemLock[index]);
+    /* add lock to access. */
+    pthread_spin_lock(&ProcArrayElemLock[index]);
+    conflict=(cid > proc->sid_min)?0:1;
+    pthread_spin_unlock(&ProcArrayElemLock[index]);
 
-	return conflict;
+    return conflict;
 }
 /*
  * when transaction T1 is invisible to T2, and T1 commit before
@@ -291,24 +291,24 @@ int IsPairConflict(int index, CommitId cid)
  */
 int UpdateProcStartId(int index,CommitId cid)
 {
-	PROC* proc;
-	Size offset;
+    PROC* proc;
+    Size offset;
 
-	offset=index*sizeof(PROC);
+    offset=index*sizeof(PROC);
 
-	proc=(PROC*)((char*)procbase+offset);
+    proc=(PROC*)((char*)procbase+offset);
 
-	if(cid > proc->sid_min)
-	{
-		proc->sid_max = ((cid-1) < proc->sid_max) ? (cid-1) : proc->sid_max;
-	}
-	else
-	{
-		/* current transaction has to roll back. */
-		return 0;
-	}
+    if(cid > proc->sid_min)
+    {
+        proc->sid_max = ((cid-1) < proc->sid_max) ? (cid-1) : proc->sid_max;
+    }
+    else
+    {
+        /* current transaction has to roll back. */
+        return 0;
+    }
 
-	return 1;
+    return 1;
 
 }
 
@@ -320,16 +320,16 @@ int UpdateProcStartId(int index,CommitId cid)
  */
 int UpdateProcCommitId(int index,StartId sid)
 {
-	PROC* proc;
-	Size offset;
+    PROC* proc;
+    Size offset;
 
-	offset=index*sizeof(PROC);
+    offset=index*sizeof(PROC);
 
-	proc=(PROC*)((char*)procbase+offset);
+    proc=(PROC*)((char*)procbase+offset);
 
-	proc->cid_min = (sid > proc->cid_min) ? sid : proc->cid_min;
+    proc->cid_min = (sid > proc->cid_min) ? sid : proc->cid_min;
 
-	return 0;
+    return 0;
 
 }
 
@@ -338,23 +338,23 @@ int UpdateProcCommitId(int index,StartId sid)
  */
 int AtRead_UpdateProcId(int index, StartId sid_min)
 {
-	PROC* proc;
-	Size offset;
+    PROC* proc;
+    Size offset;
 
-	offset=index*sizeof(PROC);
+    offset=index*sizeof(PROC);
 
-	proc=(PROC*)((char*)procbase+offset);
+    proc=(PROC*)((char*)procbase+offset);
 
-	pthread_spin_lock(&ProcArrayElemLock[index]);
+    pthread_spin_lock(&ProcArrayElemLock[index]);
 
-	proc->sid_min=sid_min;
+    proc->sid_min=sid_min;
 
-	/* update the 'cid_min'. */
-	if(proc->cid_min < sid_min)
-		proc->cid_min = sid_min;
+    /* update the 'cid_min'. */
+    if(proc->cid_min < sid_min)
+        proc->cid_min = sid_min;
 
-	pthread_spin_unlock(&ProcArrayElemLock[index]);
-	return 0;
+    pthread_spin_unlock(&ProcArrayElemLock[index]);
+    return 0;
 }
 
 /*
@@ -362,32 +362,32 @@ int AtRead_UpdateProcId(int index, StartId sid_min)
  */
 CommitId GetTransactionCidMin(int index)
 {
-	CommitId cid;
+    CommitId cid;
 
-	cid=(procbase+index)->cid_min;
+    cid=(procbase+index)->cid_min;
 
-	return cid;
+    return cid;
 }
 
 StartId GetTransactionSidMin(int index)
 {
-	StartId sid_min;
+    StartId sid_min;
 
-	sid_min=(procbase+index)->sid_min;
+    sid_min=(procbase+index)->sid_min;
 
-	return sid_min;
+    return sid_min;
 }
 
 StartId GetTransactionSidMax(int index)
 {
-	StartId sid_max;
+    StartId sid_max;
 
-	/* add lock to access. */
-	pthread_spin_lock(&ProcArrayElemLock[index]);
-	sid_max=(procbase+index)->sid_max;
-	pthread_spin_unlock(&ProcArrayElemLock[index]);
+    /* add lock to access. */
+    pthread_spin_lock(&ProcArrayElemLock[index]);
+    sid_max=(procbase+index)->sid_max;
+    pthread_spin_unlock(&ProcArrayElemLock[index]);
 
-	return sid_max;
+    return sid_max;
 }
 
 /*
@@ -395,26 +395,26 @@ StartId GetTransactionSidMax(int index)
  */
 void AtEnd_ProcArray(int index)
 {
-	int lindex;
+    int lindex;
 
-	lindex=GetLocalIndex(index);
+    lindex=GetLocalIndex(index);
 
-	PROC* proc;
-	proc=procbase+lindex;
+    PROC* proc;
+    proc=procbase+lindex;
 
-	/* add lock to access. */
-	pthread_spin_lock(&ProcArrayElemLock[lindex]);
+    /* add lock to access. */
+    pthread_spin_lock(&ProcArrayElemLock[lindex]);
 
-	proc->tid=InvalidTransactionId;
+    proc->tid=InvalidTransactionId;
 
-	proc->cid_min=0;
-	proc->sid_min=0;
-	proc->sid_max=MAXINTVALUE;
+    proc->cid_min=0;
+    proc->sid_min=0;
+    proc->sid_max=MAXINTVALUE;
 
-	proc->cid=0;
-	proc->complete=0;
+    proc->cid=0;
+    proc->complete=0;
 
-	pthread_spin_unlock(&ProcArrayElemLock[lindex]);
+    pthread_spin_unlock(&ProcArrayElemLock[lindex]);
 }
 
 /*
@@ -423,63 +423,63 @@ void AtEnd_ProcArray(int index)
  */
 bool IsTransactionActive(int index, TransactionId tid, bool IsRead, StartId* sid, CommitId* cid)
 {
-	int status;
-	int nid;
+    int status;
+    int nid;
 
-	TransactionData* tdata;
-	THREAD* threadinfo;
-	uint64_t * buffer;
-	TransactionId self_tid;
-	int self_index;
+    TransactionData* tdata;
+    THREAD* threadinfo;
+    uint64_t * buffer;
+    TransactionId self_tid;
+    int self_index;
     int lindex;
-	tdata=(TransactionData*)pthread_getspecific(TransactionDataKey);
-	threadinfo=(THREAD*)pthread_getspecific(ThreadInfoKey);
+    tdata=(TransactionData*)pthread_getspecific(TransactionDataKey);
+    threadinfo=(THREAD*)pthread_getspecific(ThreadInfoKey);
 
-	self_tid=tdata->tid;
-	self_index=threadinfo->index;
-	lindex = GetLocalIndex(self_index);
+    self_tid=tdata->tid;
+    self_index=threadinfo->index;
+    lindex = GetLocalIndex(self_index);
     nid = GetNodeId(index);
 
     if (Send6(lindex, nid, cmd_collusioninsert, self_index, index, self_tid, tid, IsRead) == -1)
-		printf("insert collision send error nid=%d, index=%d, self_tid=%d, tid=%d, IsRead=%d\n", nid, index, self_tid, tid, IsRead);
-	if (Recv(lindex, nid, 3) == -1)
-		printf("insert collision recv error\n");
-		
-	buffer=(uint64_t*)recv_buffer[lindex];
+        printf("insert collision send error nid=%d, index=%d, self_tid=%d, tid=%d, IsRead=%d\n", nid, index, self_tid, tid, IsRead);
+    if (Recv(lindex, nid, 3) == -1)
+        printf("insert collision recv error\n");
+        
+    buffer=(uint64_t*)recv_buffer[lindex];
 
-	status=(int)buffer[0];
-	*sid=(TransactionId)buffer[1];
-	*cid=(TransactionId)buffer[2];
+    status=(int)buffer[0];
+    *sid=(TransactionId)buffer[1];
+    *cid=(TransactionId)buffer[2];
 
-	if(status==0)
-		return false;
-	else
-		return true;
+    if(status==0)
+        return false;
+    else
+        return true;
 }
 
 bool IsTransactionActiveLocal(int index, TransactionId tid, StartId* sid, CommitId* cid)
 {
-	PROC* proc;
-	bool active=false;
+    PROC* proc;
+    bool active=false;
 
-	proc=(PROC*)(procbase+index);
+    proc=(PROC*)(procbase+index);
 
-	if(proc->tid == tid)
-	{
-		if(proc->complete > 0)
-		{
-			*sid=proc->sid_min;
-			*cid=proc->cid;
-		}
-		else
-		{
-			*sid=proc->sid_min;
-		}
+    if(proc->tid == tid)
+    {
+        if(proc->complete > 0)
+        {
+            *sid=proc->sid_min;
+            *cid=proc->cid;
+        }
+        else
+        {
+            *sid=proc->sid_min;
+        }
 
-		active=true;
-	}
+        active=true;
+    }
 
-	return active;
+    return active;
 }
 
 /*
@@ -487,25 +487,25 @@ bool IsTransactionActiveLocal(int index, TransactionId tid, StartId* sid, Commit
  */
 int ForceUpdateProcSidMax(int index, CommitId cid)
 {
-	PROC* proc;
-	Size offset;
+    PROC* proc;
+    Size offset;
 
-	int lindex;
+    int lindex;
 
-	lindex=GetLocalIndex(index);
+    lindex=GetLocalIndex(index);
 
-	offset=lindex*sizeof(PROC);
+    offset=lindex*sizeof(PROC);
 
-	proc=(PROC*)((char*)procbase+offset);
+    proc=(PROC*)((char*)procbase+offset);
 
-	if(proc->sid_min >= cid)
-	{
-		return 0;
-	}
+    if(proc->sid_min >= cid)
+    {
+        return 0;
+    }
 
-	proc->sid_max=(proc->sid_max > cid) ? cid : proc->sid_max;
+    proc->sid_max=(proc->sid_max > cid) ? cid : proc->sid_max;
 
-	return 1;
+    return 1;
 }
 
 /*
@@ -513,46 +513,46 @@ int ForceUpdateProcSidMax(int index, CommitId cid)
  */
 int MVCCUpdateProcId(int index, StartId sid_min, CommitId cid_min)
 {
-	PROC* proc;
-	proc=(PROC*)(procbase+index);
+    PROC* proc;
+    proc=(PROC*)(procbase+index);
 
-	if(proc->sid_min < sid_min)
-		proc->sid_min=sid_min;
+    if(proc->sid_min < sid_min)
+        proc->sid_min=sid_min;
 
-	if(proc->cid_min < cid_min)
-		proc->cid_min=cid_min;
+    if(proc->cid_min < cid_min)
+        proc->cid_min=cid_min;
 
-	if(proc->sid_min > proc->sid_max)
-		return 0;
+    if(proc->sid_min > proc->sid_max)
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 int ForceUpdateProcCidMin(int index, StartId sid)
 {
-	PROC* proc;
+    PROC* proc;
 
-	int lindex;
+    int lindex;
 
-	lindex=GetLocalIndex(index);
+    lindex=GetLocalIndex(index);
 
-	proc=(PROC*)(procbase+lindex);
+    proc=(PROC*)(procbase+lindex);
 
-	proc->cid_min = (sid > proc->cid_min) ? sid : proc->cid_min;
+    proc->cid_min = (sid > proc->cid_min) ? sid : proc->cid_min;
 
-	return 1;
+    return 1;
 }
 
 void SetProcAbort(int index)
 {
-	PROC* proc;
-	proc=(PROC*)(procbase+index);
+    PROC* proc;
+    proc=(PROC*)(procbase+index);
 
-	proc->tid=InvalidTransactionId;
+    proc->tid=InvalidTransactionId;
 }
 
 void ResetProc(void)
 {
-	prohd->maxprocs=THREADNUM;
-	prohd->numprocs=0;
+    prohd->maxprocs=THREADNUM;
+    prohd->numprocs=0;
 }

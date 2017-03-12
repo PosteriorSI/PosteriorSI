@@ -18,84 +18,84 @@
 
 int main(int argc, char *argv[])
 {
-	pid_t pid;
-	int i,j;
-	int commNum[20]={0};
-	if (argc != 2)
-	{
-		printf("please enter the configure file's name\n");
-	}
-    if ((conf_fp = fopen(argv[1], "r")) == NULL)
-	{
-	   printf("can not open the configure file.\n");
-	   fclose(conf_fp);
-	   return -1;
+    pid_t pid;
+    int i,j;
+    int commNum[20]={0};
+    if (argc != 2)
+    {
+        printf("please enter the configure file's name\n");
     }
-	GetReady();
+    if ((conf_fp = fopen(argv[1], "r")) == NULL)
+    {
+       printf("can not open the configure file.\n");
+       fclose(conf_fp);
+       return -1;
+    }
+    GetReady();
 
-	//initialize the shared memory.
-	CreateShmem();
+    //initialize the shared memory.
+    CreateShmem();
 
     if ((pid = fork()) < 0)
     {
-    	printf("fork error\n");
+        printf("fork error\n");
     }
 
     else if(pid == 0)
     {
-    	/* shmget the shared memory address*/
-    	//BindShmem();
+        /* shmget the shared memory address*/
+        //BindShmem();
 
-		if(freopen("service_log.txt", "w", stdout)==NULL)
-		{
-			printf("redirection stdout error\n");
-			exit(-1);
-		}
+        if(freopen("service_log.txt", "w", stdout)==NULL)
+        {
+            printf("redirection stdout error\n");
+            exit(-1);
+        }
 
 
-    	InitStorage();
+        InitStorage();
 
-    	printf("storage process finished.\n");
+        printf("storage process finished.\n");
 
-		for(i=1;i<NODENUM*THREADNUM+1;i++)
-		{
-			for(j=0;j<12;j++)
-				commNum[j]+=CommTimes[i][j];
-		}
+        for(i=1;i<NODENUM*THREADNUM+1;i++)
+        {
+            for(j=0;j<12;j++)
+                commNum[j]+=CommTimes[i][j];
+        }
 
-		printf("count for communications times:\n");
-		for(i=0;i<12;i++)
-			printf("%4d : %d times\n", i, commNum[i]);
+        printf("count for communications times:\n");
+        for(i=0;i<12;i++)
+            printf("%4d : %d times\n", i, commNum[i]);
 /*
-    	for(i=0;i<9;i++)
-    	{
-    		PrintTable(i);
-    	}
+        for(i=0;i<9;i++)
+        {
+            PrintTable(i);
+        }
 */
     }
 
     else
     {
-    	InitTransaction();
+        InitTransaction();
 
-    	/* load the benchmark data */
-    	dataLoading();
-    	/* wait other nodes in the distributed system prepare the data */
-    	WaitDataReady();
+        /* load the benchmark data */
+        dataLoading();
+        /* wait other nodes in the distributed system prepare the data */
+        WaitDataReady();
 
-    	/*
-		if(freopen("transaction_log.txt", "w", stdout)==NULL)
-		{
-			printf("redirection stdout error\n");
-			exit(-1);
-		}
-		*/
+        /*
+        if(freopen("transaction_log.txt", "w", stdout)==NULL)
+        {
+            printf("redirection stdout error\n");
+            exit(-1);
+        }
+        */
 
-    	/* run the benchmark */
-    	RunTerminals(THREADNUM);
+        /* run the benchmark */
+        RunTerminals(THREADNUM);
 
-    	printf("transaction process finished.\n");
+        printf("transaction process finished.\n");
     }
-	return 0;
+    return 0;
 }
 

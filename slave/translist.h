@@ -16,8 +16,8 @@
 #define WRITELISTTABLEMAX RECORDNUM
 
 typedef struct WriteTransListNode {
-	TransactionId transactionid;
-	int index;
+    TransactionId transactionid;
+    int index;
 } WriteTransListNode;
 
 extern TransactionId*** ReadTransTable;

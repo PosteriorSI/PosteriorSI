@@ -40,23 +40,23 @@ Size InvisibleTableSize(void)
 
 void InitInvisibleTable(void)
 {
-	invisible_shmid = shmget(IPC_PRIVATE, InvisibleTableSize(), SHM_MODE);
+    invisible_shmid = shmget(IPC_PRIVATE, InvisibleTableSize(), SHM_MODE);
 
-	if (invisible_shmid == -1)
-	{
-		printf("invisiable shmget error.\n");
-		return;
-	}
+    if (invisible_shmid == -1)
+    {
+        printf("invisiable shmget error.\n");
+        return;
+    }
 
-	TransConfTable = (TransConf*)shmat(invisible_shmid, 0, 0);
+    TransConfTable = (TransConf*)shmat(invisible_shmid, 0, 0);
 
-	if (TransConfTable == (TransConf*)-1)
-	{
-		printf("invisiable shmat error.\n");
-		return;
-	}
+    if (TransConfTable == (TransConf*)-1)
+    {
+        printf("invisiable shmat error.\n");
+        return;
+    }
 
-	memset((char*) TransConfTable, InvalidTransactionId, InvisibleTableSize());
+    memset((char*) TransConfTable, InvalidTransactionId, InvisibleTableSize());
 }
 
 /*
@@ -153,25 +153,25 @@ CommitId GetTransactionCid(int index,CommitId cid_min)
    for(i=0;i<MAXPROCS;i++)
    {
       if(IsPairInvisible(lindex, i, &rtid))
-	  {
-	     nid = GetNodeId(i);
-		if (Send3(lindex, nid, cmd_getsidmin, i, rtid) == -1)
-			  printf("get sid min send error\n");
-		if (Recv(lindex, nid, 2) == -1)
-			  printf("get sid min recv error\n");
-		sid_min = *(recv_buffer[lindex]);
-		status = *(recv_buffer[lindex]+1);
-		 if(status)
-		 {
-		    /* transaction by 'rtid' is still in running, else overflow it. */
-			cid=(cid<sid_min)?sid_min:cid;
-		 }
-		 else
-		 {
-		    /* transaction by 'rtid' has finished, reset the invisible-table. */
-		    ResetPairInvisible(lindex, i);
-		 }
-	  }
+      {
+         nid = GetNodeId(i);
+        if (Send3(lindex, nid, cmd_getsidmin, i, rtid) == -1)
+              printf("get sid min send error\n");
+        if (Recv(lindex, nid, 2) == -1)
+              printf("get sid min recv error\n");
+        sid_min = *(recv_buffer[lindex]);
+        status = *(recv_buffer[lindex]+1);
+         if(status)
+         {
+            /* transaction by 'rtid' is still in running, else overflow it. */
+            cid=(cid<sid_min)?sid_min:cid;
+         }
+         else
+         {
+            /* transaction by 'rtid' has finished, reset the invisible-table. */
+            ResetPairInvisible(lindex, i);
+         }
+      }
    }
    return cid;
 }
@@ -191,9 +191,9 @@ int IsConflictRollback(int index,CommitId cid)
    {
       if(IsPairInvisible(index,i,&tid) && IsPairConflict(i,cid) && index != i)
       {
-	     conflict=1;
-	     break;
-	  }
+         conflict=1;
+         break;
+      }
    }
    return conflict;
 }
@@ -204,8 +204,8 @@ int IsConflictRollback(int index,CommitId cid)
  */
 int CommitInvisibleUpdate(int index,StartId sid, CommitId cid)
 {
-	//for test
-	//return 0;
+    //for test
+    //return 0;
 
    int i, j;
    bool is_abort = false;
@@ -241,97 +241,97 @@ int CommitInvisibleUpdate(int index,StartId sid, CommitId cid)
 
    for(i=0;i<NODENUM;i++)
    {
-	   nid=i;
-	   access=false;
-	   //modify
-	   base=i*THREADNUM;
-	   for(j=0;j<THREADNUM;j++)
-	   {
-	       //modify
-		   //if(IsPairInvisible(lindex, j+i*THREADNUM, &tid))
-		   if(IsPairInvisible(lindex, j+base, &tid))
-		   {
-			   *(sbuffer+4+j)=tid;
-			   access=true;
-		   }
-		   else
-		   {
-			   *(sbuffer+4+j)=InvalidTransactionId;
-		   }
+       nid=i;
+       access=false;
+       //modify
+       base=i*THREADNUM;
+       for(j=0;j<THREADNUM;j++)
+       {
+           //modify
+           //if(IsPairInvisible(lindex, j+i*THREADNUM, &tid))
+           if(IsPairInvisible(lindex, j+base, &tid))
+           {
+               *(sbuffer+4+j)=tid;
+               access=true;
+           }
+           else
+           {
+               *(sbuffer+4+j)=InvalidTransactionId;
+           }
 
-		   //modify
-		   //if(IsPairInvisible(j+i*THREADNUM, lindex, &tid))
-		   if(IsPairInvisible(j+base, lindex, &tid))
-		   {
-			   *(sbuffer+4+THREADNUM+j)=tid;
-			   access=true;
-		   }
-		   else
-		   {
-			   *(sbuffer+4+THREADNUM+j)=InvalidTransactionId;
-		   }
-	   }
-	   /*
-	   for(j=0;j<THREADNUM;j++)
-	   {
-		   if(IsPairInvisible(j+i*THREADNUM, lindex, &tid))
-		   {
-			   *(sbuffer+4+THREADNUM+j)=tid;
-			   access=true;
-		   }
-		   else
-		   {
-			   *(sbuffer+4+THREADNUM+j)=InvalidTransactionId;
-		   }
-	   }
-		*/
-	   if(access==true)
-	   {
-		   conn=connect_socket[nid][lindex];
-		   num=4+2*THREADNUM;
+           //modify
+           //if(IsPairInvisible(j+i*THREADNUM, lindex, &tid))
+           if(IsPairInvisible(j+base, lindex, &tid))
+           {
+               *(sbuffer+4+THREADNUM+j)=tid;
+               access=true;
+           }
+           else
+           {
+               *(sbuffer+4+THREADNUM+j)=InvalidTransactionId;
+           }
+       }
+       /*
+       for(j=0;j<THREADNUM;j++)
+       {
+           if(IsPairInvisible(j+i*THREADNUM, lindex, &tid))
+           {
+               *(sbuffer+4+THREADNUM+j)=tid;
+               access=true;
+           }
+           else
+           {
+               *(sbuffer+4+THREADNUM+j)=InvalidTransactionId;
+           }
+       }
+        */
+       if(access==true)
+       {
+           conn=connect_socket[nid][lindex];
+           num=4+2*THREADNUM;
 
-		   Send(conn, sbuffer, num);
+           Send(conn, sbuffer, num);
 
-		   //printf("cmd_updateInterval: send to node %d, num=%d, lindex=%d, tid=%d\n", nid, num, lindex, td->tid);
+           //printf("cmd_updateInterval: send to node %d, num=%d, lindex=%d, tid=%d\n", nid, num, lindex, td->tid);
 
-		   //response from node "nid".
-		   num=1;
-		   Receive(conn, rbuffer, 1);
-		   //printf("cmd_updateInterval: receive from node %d, status=%ld, lindex=%d, tid=%d\n", nid, status, lindex, td->tid);
+           //response from node "nid".
+           num=1;
+           Receive(conn, rbuffer, 1);
+           //printf("cmd_updateInterval: receive from node %d, status=%ld, lindex=%d, tid=%d\n", nid, status, lindex, td->tid);
 
-		   status=*(rbuffer);
+           status=*(rbuffer);
 
-		   if(status == 0)
-		   {
-			   is_abort=true;
-			   break;
-		   }
-	   }
+           if(status == 0)
+           {
+               is_abort=true;
+               break;
+           }
+       }
    }
 
    /*
    for(i=0;i<MAXPROCS;i++)
    {
       if(IsPairInvisible(lindex,i,&tid))
-	  {
-	     nid = GetNodeId(i);
-	     if (Send6(lindex, nid, cmd_updatestartid, cid, is_abort, index, i, tid) == -1)
-	    	 printf("update start id send error\n");
-	     if (Recv(lindex, nid, 1) == -1)
-	    	 printf("update start id recv error\n");
-	     status = *(recv_buffer[lindex]);
-		 if (status == 0)
-		    is_abort = true;
-	  }
+      {
+         nid = GetNodeId(i);
+         if (Send6(lindex, nid, cmd_updatestartid, cid, is_abort, index, i, tid) == -1)
+             printf("update start id send error\n");
+         if (Recv(lindex, nid, 1) == -1)
+             printf("update start id recv error\n");
+         status = *(recv_buffer[lindex]);
+         if (status == 0)
+            is_abort = true;
+      }
 
-	  if(IsPairInvisible(i,lindex,&tid))
-	  {
-	     nid = GetNodeId(i);
-	     if (Send6(lindex, nid, cmd_updatecommitid, sid, is_abort, index, i, tid) == -1)
-	    	 printf("update commit id send error\n");
-	     if (Recv(lindex, nid, 1) == -1)
-	    	 printf("update commit id recv error\n");
-	  }
+      if(IsPairInvisible(i,lindex,&tid))
+      {
+         nid = GetNodeId(i);
+         if (Send6(lindex, nid, cmd_updatecommitid, sid, is_abort, index, i, tid) == -1)
+             printf("update commit id send error\n");
+         if (Recv(lindex, nid, 1) == -1)
+             printf("update commit id recv error\n");
+      }
    }
    */
 

@@ -10,22 +10,22 @@
 
 TimeStampTz GetCurrentTimestamp(void)
 {
-	TimeStampTz result;
+    TimeStampTz result;
 
-	struct timeval tv;
+    struct timeval tv;
 
-	gettimeofday(&tv,NULL);
+    gettimeofday(&tv,NULL);
 
-	result = (TimeStampTz)tv.tv_sec-DATEBASE*SECS_PER_DAY;
+    result = (TimeStampTz)tv.tv_sec-DATEBASE*SECS_PER_DAY;
 
-	result=result*USECS_PER_SEC+tv.tv_usec;
+    result=result*USECS_PER_SEC+tv.tv_usec;
 
 
-	return result;
+    return result;
 }
 
 int64_t GetCurrentInterTimestamp(void)
 {
-	return 0;
+    return 0;
 }
 

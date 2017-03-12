@@ -13,45 +13,45 @@
 
 void InitRandomSeed(void)
 {
-	unsigned int *seed=(unsigned int*)malloc(sizeof(unsigned int));
+    unsigned int *seed=(unsigned int*)malloc(sizeof(unsigned int));
 
-	pthread_setspecific(RandomSeedKey, seed);
+    pthread_setspecific(RandomSeedKey, seed);
 
-	*seed=(unsigned int)time(NULL);
+    *seed=(unsigned int)time(NULL);
 }
 
 void SetRandomSeed(void)
 {
-	srand((unsigned)time(NULL));
+    srand((unsigned)time(NULL));
 }
 
 int RandomNumber(int min, int max)
 {
-	unsigned int* seed;
+    unsigned int* seed;
 
-	seed=(unsigned int*)pthread_getspecific(RandomSeedKey);
+    seed=(unsigned int*)pthread_getspecific(RandomSeedKey);
 
-	return rand_r(seed)%(max-min+1)+min;
+    return rand_r(seed)%(max-min+1)+min;
 }
 
 int GlobalRandomNumber(int min, int max)
 {
-	return rand()%(max-min+1)+min;
+    return rand()%(max-min+1)+min;
 }
 
 int nonUniformRandom(int v, int min, int max)
 {
-	return (int)(((RandomNumber(0, v) | RandomNumber(min, max)) + RandomNumber(0, v))%(max-min+1)+min);
+    return (int)(((RandomNumber(0, v) | RandomNumber(min, max)) + RandomNumber(0, v))%(max-min+1)+min);
 }
 
 int getCustomerID(void)
 {
-	/* change the parameter here. */
-	return nonUniformRandom(1023, 1, configCustPerDist);
+    /* change the parameter here. */
+    return nonUniformRandom(1023, 1, configCustPerDist);
 }
 
 int getItemID(void)
 {
-	/* change the parameter here. */
-	return nonUniformRandom(8191, 1, configUniqueItems);
+    /* change the parameter here. */
+    return nonUniformRandom(8191, 1, configUniqueItems);
 }

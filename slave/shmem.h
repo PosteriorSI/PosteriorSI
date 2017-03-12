@@ -13,8 +13,8 @@
 
 typedef struct ShmemHeader
 {
-	int totalsize;
-	int freeoffset;
+    int totalsize;
+    int freeoffset;
 }ShmemHeader;
 
 extern void* ShmemAlloc(size_t size);

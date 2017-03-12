@@ -26,57 +26,57 @@ static void InitTransactionListMem();
 //newtest
 void WriteListReset(int tableid, int h, TransactionId tid)
 {
-	WriteTransTable[tableid][h]=(WriteTransTable[tableid][h]==tid)?InvalidTransactionId:WriteTransTable[tableid][h];
+    WriteTransTable[tableid][h]=(WriteTransTable[tableid][h]==tid)?InvalidTransactionId:WriteTransTable[tableid][h];
 }
 
 
 void InitReadListMemAlloc(void)
 {
-	TransactionId* ReadList=NULL;
-	TransactionId* OldReadList=NULL;
+    TransactionId* ReadList=NULL;
+    TransactionId* OldReadList=NULL;
 
-	char* memstart;
-	Size size;
-	THREAD* threadinfo;
+    char* memstart;
+    Size size;
+    THREAD* threadinfo;
 
-	threadinfo=(THREAD*)pthread_getspecific(ThreadInfoKey);
-	memstart=threadinfo->memstart;
+    threadinfo=(THREAD*)pthread_getspecific(ThreadInfoKey);
+    memstart=threadinfo->memstart;
 
-	size=sizeof(TransactionId)*(THREADNUM*NODENUM+1);
+    size=sizeof(TransactionId)*(THREADNUM*NODENUM+1);
 
-	ReadList=(TransactionId*)MemAlloc((void*)memstart, size);
+    ReadList=(TransactionId*)MemAlloc((void*)memstart, size);
 
-	if(ReadList==NULL)
-	{
-		printf("memory allocation error for read-list.\n");
-		exit(-1);
-	}
+    if(ReadList==NULL)
+    {
+        printf("memory allocation error for read-list.\n");
+        exit(-1);
+    }
 
-	pthread_setspecific(NewReadListKey, ReadList);
+    pthread_setspecific(NewReadListKey, ReadList);
 
-	OldReadList=(TransactionId*)MemAlloc((void*)memstart, size);
+    OldReadList=(TransactionId*)MemAlloc((void*)memstart, size);
 
-	if(OldReadList==NULL)
-	{
-		printf("memory allocation error for read-list.\n");
-		exit(-1);
-	}
+    if(OldReadList==NULL)
+    {
+        printf("memory allocation error for read-list.\n");
+        exit(-1);
+    }
 
-	pthread_setspecific(OldReadListKey, OldReadList);
+    pthread_setspecific(OldReadListKey, OldReadList);
 
-	memset((char*)OldReadList, 0, size);
+    memset((char*)OldReadList, 0, size);
 
 }
 
 void InitReadListMem(void)
 {
-	TransactionId* ReadList=NULL;
-	Size size;
-	size=sizeof(TransactionId)*(NODENUM*THREADNUM+1);
+    TransactionId* ReadList=NULL;
+    Size size;
+    size=sizeof(TransactionId)*(NODENUM*THREADNUM+1);
 
-	ReadList=(TransactionId*)pthread_getspecific(NewReadListKey);
+    ReadList=(TransactionId*)pthread_getspecific(NewReadListKey);
 
-	memset((char*)ReadList,0,size);
+    memset((char*)ReadList,0,size);
 }
 
 void InitTransactionList(void)
@@ -88,7 +88,7 @@ void InitTransactionList(void)
    {
       for (j = 0; j < RecordNum[i]; j++)
       {
-    	  WriteTransTable[i][j]=InvalidTransactionId;
+          WriteTransTable[i][j]=InvalidTransactionId;
       }
    }
 
@@ -109,7 +109,7 @@ void InitTransactionList(void)
  */
 void ReadListInsert(int tableid, int h, TransactionId tid, int index)
 {
-	ReadTransTable[tableid][index][h] = tid;
+    ReadTransTable[tableid][index][h] = tid;
 }
 
 /* test is use to test if position have a read transaction, note that the read list lock should be get in the outer loop */
@@ -117,7 +117,7 @@ void ReadListInsert(int tableid, int h, TransactionId tid, int index)
 
 TransactionId ReadListRead(int tableid, int h, int index)
 {
-	return ReadTransTable[tableid][index][h];
+    return ReadTransTable[tableid][index][h];
 }
 
 /*
@@ -125,7 +125,7 @@ TransactionId ReadListRead(int tableid, int h, int index)
  */
 void ReadListDelete(int tableid, int h, int index)
 {
-	ReadTransTable[tableid][index][h] = InvalidTransactionId;
+    ReadTransTable[tableid][index][h] = InvalidTransactionId;
 }
 
 /*
@@ -133,12 +133,12 @@ void ReadListDelete(int tableid, int h, int index)
  */
 void WriteListInsert(int tableid, int h, TransactionId tid)
 {
-	WriteTransTable[tableid][h]=tid;
+    WriteTransTable[tableid][h]=tid;
 }
 
 TransactionId WriteListRead(int tableid, int h)
 {
-	return WriteTransTable[tableid][h];
+    return WriteTransTable[tableid][h];
 }
 
 /*
@@ -147,7 +147,7 @@ TransactionId WriteListRead(int tableid, int h)
  */
 int WriteListReadindex(int tableid, int h)
 {
-	return WriteTransTable[tableid][h];
+    return WriteTransTable[tableid][h];
 }
 
 void WriteListDelete(int tableid, int h)
@@ -157,98 +157,98 @@ void WriteListDelete(int tableid, int h)
 
 void InitTransactionListMem()
 {
-	int i, j;
+    int i, j;
 
-	ReadTransTable = (TransactionId***) malloc (TABLENUM*sizeof(TransactionId**));
-	if (ReadTransTable == NULL)
-	{
-		printf("malloc error for Read TransTable\n");
-		exit(-1);
-	}
-	for (i = 0; i < TABLENUM; i++)
-	{
-		ReadTransTable[i] = (TransactionId**) malloc ((NODENUM*THREADNUM+1)*sizeof(TransactionId*));
-		if (ReadTransTable[i] == NULL)
-		{
-			printf("malloc error for Read TransTable\n");
-			exit(-1);
-		}
-	}
+    ReadTransTable = (TransactionId***) malloc (TABLENUM*sizeof(TransactionId**));
+    if (ReadTransTable == NULL)
+    {
+        printf("malloc error for Read TransTable\n");
+        exit(-1);
+    }
+    for (i = 0; i < TABLENUM; i++)
+    {
+        ReadTransTable[i] = (TransactionId**) malloc ((NODENUM*THREADNUM+1)*sizeof(TransactionId*));
+        if (ReadTransTable[i] == NULL)
+        {
+            printf("malloc error for Read TransTable\n");
+            exit(-1);
+        }
+    }
 
-	WriteTransTable=(TransactionId**) malloc (TABLENUM*sizeof(TransactionId*));
-	for(i=0;i<TABLENUM;i++)
-	{
-		WriteTransTable[i]=(TransactionId*)malloc(sizeof(TransactionId)*RecordNum[i]);
-		if(WriteTransTable[i]==NULL)
-		{
-			printf("malloc error for Write TransTable. %d\n",i);
-			exit(-1);
-		}
-		for(j=0;j<NODENUM*THREADNUM+1;j++)
-		{
-			ReadTransTable[i][j]=(TransactionId*)malloc(sizeof(TransactionId)*RecordNum[i]);
-			if(ReadTransTable[i][j]==NULL)
-			{
-				printf("malloc error for Read TransTable.%d %d\n",i,j);
-				exit(-1);
-			}
-		}
-	}
+    WriteTransTable=(TransactionId**) malloc (TABLENUM*sizeof(TransactionId*));
+    for(i=0;i<TABLENUM;i++)
+    {
+        WriteTransTable[i]=(TransactionId*)malloc(sizeof(TransactionId)*RecordNum[i]);
+        if(WriteTransTable[i]==NULL)
+        {
+            printf("malloc error for Write TransTable. %d\n",i);
+            exit(-1);
+        }
+        for(j=0;j<NODENUM*THREADNUM+1;j++)
+        {
+            ReadTransTable[i][j]=(TransactionId*)malloc(sizeof(TransactionId)*RecordNum[i]);
+            if(ReadTransTable[i][j]==NULL)
+            {
+                printf("malloc error for Read TransTable.%d %d\n",i,j);
+                exit(-1);
+            }
+        }
+    }
 }
 
 void MergeReadList(uint32_t* buffer)
 {
-	//for test.
-	//return;
+    //for test.
+    //return;
 
-	TransactionId* ReadList=NULL;
-	TransactionId* OldReadList=NULL;
+    TransactionId* ReadList=NULL;
+    TransactionId* OldReadList=NULL;
 
-	int i;
-	TransactionId rdtid;
+    int i;
+    TransactionId rdtid;
 
-	ReadList=(TransactionId*)pthread_getspecific(NewReadListKey);
+    ReadList=(TransactionId*)pthread_getspecific(NewReadListKey);
 
-	OldReadList=(TransactionId*)pthread_getspecific(OldReadListKey);
+    OldReadList=(TransactionId*)pthread_getspecific(OldReadListKey);
 
-	for(i=0;i<=NODENUM*THREADNUM;i++)
-	{
-		rdtid = (TransactionId)buffer[i];
+    for(i=0;i<=NODENUM*THREADNUM;i++)
+    {
+        rdtid = (TransactionId)buffer[i];
 
-		if(rdtid >= OldReadList[i])
-		{
-			OldReadList[i]=rdtid;
-			ReadList[i]=rdtid;
-		}
-	}
+        if(rdtid >= OldReadList[i])
+        {
+            OldReadList[i]=rdtid;
+            ReadList[i]=rdtid;
+        }
+    }
 
 }
 
 void MergeReadListbak(int tableid, int h)
 {
-	//for test.
-	//return;
+    //for test.
+    //return;
 
-	TransactionId* ReadList=NULL;
-	TransactionId* OldReadList=NULL;
+    TransactionId* ReadList=NULL;
+    TransactionId* OldReadList=NULL;
 
-	int i;
-	TransactionId rdtid;
+    int i;
+    TransactionId rdtid;
 
-	ReadList=(TransactionId*)pthread_getspecific(NewReadListKey);
+    ReadList=(TransactionId*)pthread_getspecific(NewReadListKey);
 
-	OldReadList=(TransactionId*)pthread_getspecific(OldReadListKey);
+    OldReadList=(TransactionId*)pthread_getspecific(OldReadListKey);
 
-	for(i=0;i<=NODENUM*THREADNUM;i++)
-	{
-		rdtid = ReadTransTable[tableid][i][h];
+    for(i=0;i<=NODENUM*THREADNUM;i++)
+    {
+        rdtid = ReadTransTable[tableid][i][h];
 
-		if(rdtid >= OldReadList[i])
-		{
-			OldReadList[i]=rdtid;
-			ReadList[i]=rdtid;
-		}
-	}
+        if(rdtid >= OldReadList[i])
+        {
+            OldReadList[i]=rdtid;
+            ReadList[i]=rdtid;
+        }
+    }
 
 }
 

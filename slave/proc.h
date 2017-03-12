@@ -28,40 +28,40 @@
  */
 struct PROCHEAD
 {
-	int numprocs;
-	int maxprocs;
-	pthread_mutex_t ilock;
+    int numprocs;
+    int maxprocs;
+    pthread_mutex_t ilock;
 };
 
 typedef struct PROCHEAD PROCHEAD;
 
 struct PROC
 {
-	TransactionId tid;
+    TransactionId tid;
     pthread_t pid;
 
-	StartId	sid_min;
-	StartId sid_max;
+    StartId    sid_min;
+    StartId sid_max;
 
-	CommitId cid_min;
+    CommitId cid_min;
 
-	int index;//the index for per thread.
+    int index;//the index for per thread.
 
-	CommitId cid;
+    CommitId cid;
 
-	//to tell whether the [S,C] has been determined.
-	int complete;
+    //to tell whether the [S,C] has been determined.
+    int complete;
 };
 
 typedef struct PROC PROC;
 
 struct THREADINFO
 {
-	int index;//index for process array.
-	char* memstart;//start address of current thread's private memory.
+    int index;//index for process array.
+    char* memstart;//start address of current thread's private memory.
 
-	TransactionId curid;
-	TransactionId maxid;
+    TransactionId curid;
+    TransactionId maxid;
 };
 
 typedef struct THREADINFO THREAD;
@@ -69,23 +69,23 @@ typedef struct THREADINFO THREAD;
 //record struct for the process in committing.
 struct PROCCOMMIT
 {
-	TransactionId tid;
-	int index;
+    TransactionId tid;
+    int index;
 };
 
 typedef struct PROCCOMMIT PROCCOMMIT;
 
 typedef struct terminalArgs
 {
-	int whse_id;
-	int dist_id;
-	int type;//'0' for load data, '1' for run transaction.
+    int whse_id;
+    int dist_id;
+    int type;//'0' for load data, '1' for run transaction.
 
-	//used to wait until all terminals arrive.
-	pthread_barrier_t *barrier;
+    //used to wait until all terminals arrive.
+    pthread_barrier_t *barrier;
 
-	//used to transactions statistic.
-	TransState *StateInfo;
+    //used to transactions statistic.
+    TransState *StateInfo;
 }terminalArgs;
 
 extern PROC* procbase;

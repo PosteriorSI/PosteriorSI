@@ -18,6 +18,35 @@ int oneNodeWeight;
 int twoNodeWeight;
 int redo_limit;
 
+//hotspot control
+int HOTSPOT_PERCENTAGE;
+int HOTSPOT_FIXED_SIZE;
+
+//duration control
+int extension_limit;
+
+//random read control
+int random_read_limit;
+
+BENCHMARK benchmark_type;
+int transactions_per_terminal;
+int payment_weight_value;
+int order_status_weight_value;
+int delivery_weight_value;
+int stock_level_weight_value;
+int lim_per_min_terminal;
+int config_whse_count;
+int config_commit_count;
+int order_max_num;
+int max_data_lock_num;
+int scale_factor;
+int FREQUENCY_AMALGAMATE;
+int FREQUENCY_BALANCE;
+int FREQUENCY_DEPOSIT_CHECKING;
+int FREQUENCY_SEND_PAYMENT;
+int FREQUENCY_TRANSACT_SAVINGS;
+int FREQUENCY_WRITE_CHECK;
+
 char master_ip[20];
 
 int ReadConfig(char * find_string, char * result)
@@ -26,7 +55,7 @@ int ReadConfig(char * find_string, char * result)
    int j;
    int k;
    FILE * fp;
-   char buffer[30];
+   char buffer[50];
    char * p;
    if ((fp = fopen("config.txt", "r")) == NULL)
    {
@@ -77,7 +106,7 @@ void InitParam(void)
     int conn;
     int param_connect[NODENUM];
 
-    int param_send_buffer[9+NODENUM];
+    int param_send_buffer[31+NODENUM];
     int param_recv_buffer[1];
 
     int master_sockfd;
@@ -107,8 +136,8 @@ void InitParam(void)
     socklen_t slave_length;
     struct sockaddr_in slave_addr;
     slave_length = sizeof(slave_addr);
-       int i = 0;
-       int j;
+    int i = 0;
+    int j;
     while(i < NODENUM)
     {
         conn = accept(master_sockfd, (struct sockaddr*)&slave_addr, &slave_length);
@@ -142,13 +171,39 @@ void InitParam(void)
         param_send_buffer[6] = oneNodeWeight;
         param_send_buffer[7] = twoNodeWeight;
         param_send_buffer[8] = redo_limit;
+
+        param_send_buffer[9] = HOTSPOT_PERCENTAGE;
+        param_send_buffer[10] = HOTSPOT_FIXED_SIZE;
+        param_send_buffer[11] = extension_limit;
+        //random read control
+        param_send_buffer[12] = random_read_limit;
+
+        param_send_buffer[13] = benchmark_type;
+        param_send_buffer[14] = transactions_per_terminal;
+        param_send_buffer[15] = payment_weight_value;
+        param_send_buffer[16] = order_status_weight_value;
+        param_send_buffer[17] = delivery_weight_value;
+        param_send_buffer[18] = stock_level_weight_value;
+        param_send_buffer[19] = lim_per_min_terminal;
+        param_send_buffer[20] = config_whse_count;
+        param_send_buffer[21] = config_commit_count;
+        param_send_buffer[22] = order_max_num;
+        param_send_buffer[23] = max_data_lock_num;
+        param_send_buffer[24] = scale_factor;
+        param_send_buffer[25] = FREQUENCY_AMALGAMATE;
+        param_send_buffer[26] = FREQUENCY_BALANCE;
+        param_send_buffer[27] = FREQUENCY_DEPOSIT_CHECKING;
+        param_send_buffer[28] = FREQUENCY_SEND_PAYMENT;
+        param_send_buffer[29] = FREQUENCY_TRANSACT_SAVINGS;
+        param_send_buffer[30] = FREQUENCY_WRITE_CHECK;
+
         int k;
         for (k = 0; k < NODENUM; k++)
         {
-            param_send_buffer[9+k] = ip[k];
+            param_send_buffer[31+k] = ip[k];
         }
         int ret;
-        int size = (9+NODENUM)*sizeof(int);
+        int size = (31+NODENUM)*sizeof(int);
         ret = send(param_connect[j], param_send_buffer, size, 0);
         if (ret == -1)
             printf("param naster send error\n");
@@ -263,7 +318,7 @@ void InitRecord(void)
     socklen_t slave_length;
     struct sockaddr_in slave_addr;
     slave_length = sizeof(slave_addr);
-       int i = 0;
+    int i = 0;
 
     while(i < NODENUM)
     {
@@ -333,34 +388,113 @@ void InitRecord(void)
 
 void InitNetworkParam(void)
 {
-   char buffer[5];
+   char buffer[20];
 
-   ReadConfig("threadnum", buffer);
+   ReadConfig("thread_num", buffer);
    threadnum = atoi(buffer);
 
-   ReadConfig("recordport", buffer);
+   ReadConfig("record_port", buffer);
    record_port = atoi(buffer);
 
-   ReadConfig("nodenum", buffer);
+   ReadConfig("node_num", buffer);
    nodenum = atoi(buffer);
 
-   ReadConfig("oneweight", buffer);
+   ReadConfig("one_weight", buffer);
    oneNodeWeight = atoi(buffer);
 
-   ReadConfig("twoweight", buffer);
+   ReadConfig("two_weight", buffer);
    twoNodeWeight = atoi(buffer);
 
-   ReadConfig("redolimit", buffer);
+   ReadConfig("redo_limit", buffer);
    redo_limit = atoi(buffer);
 
-   ReadConfig("clientport", buffer);
+   ReadConfig("client_port", buffer);
    client_port = atoi(buffer);
 
-   ReadConfig("paramport", buffer);
+   ReadConfig("param_port", buffer);
    param_port = atoi(buffer);
 
-   ReadConfig("messageport", buffer);
+   ReadConfig("message_port", buffer);
    message_port = atoi(buffer);
 
-   ReadConfig("masterip", master_ip);
+   ReadConfig("master_ip", master_ip);
+
+      ReadConfig("hotspot_percentage", buffer);
+   HOTSPOT_PERCENTAGE = atoi(buffer);
+   
+   ReadConfig("hotspot_fixed_size", buffer);
+   HOTSPOT_FIXED_SIZE = atoi(buffer);
+   
+   ReadConfig("extension_limit", buffer);
+   extension_limit = atoi(buffer);
+   
+   ReadConfig("random_read_limit", buffer);
+   random_read_limit = atoi(buffer);
+
+   ReadConfig("benchmark_type", buffer);
+
+   if (strncmp(buffer, "TPCC", 4) == 0)
+   {
+       benchmark_type = TPCC;
+   }
+   else if (strncmp(buffer, "SMALLBANK", 9) == 0)
+   {
+       benchmark_type = SMALLBANK;
+   }
+   else
+   {
+       printf("read benchmark type error!\n");
+       exit(-1);
+   }
+
+   ReadConfig("transactions_per_terminal", buffer);
+   transactions_per_terminal = atoi(buffer);
+
+   ReadConfig("payment_weight_value", buffer);
+   payment_weight_value = atoi(buffer);
+
+   ReadConfig("order_status_weight_value", buffer);
+   order_status_weight_value = atoi(buffer);
+
+   ReadConfig("delivery_weight_value", buffer);
+   delivery_weight_value = atoi(buffer);
+
+   ReadConfig("stock_level_weight_value", buffer);
+   stock_level_weight_value = atoi(buffer);
+
+   ReadConfig("lim_per_min_terminal", buffer);
+   lim_per_min_terminal = atoi(buffer);
+
+   ReadConfig("config_whse_count", buffer);
+   config_whse_count = atoi(buffer);
+
+   ReadConfig("config_commit_count", buffer);
+   config_commit_count = atoi(buffer);
+
+   ReadConfig("order_max_num", buffer);
+   order_max_num = atoi(buffer);
+
+   ReadConfig("max_data_lock_num", buffer);
+   max_data_lock_num = atoi(buffer);
+   
+   ReadConfig("scale_factor", buffer);
+   scale_factor = atoi(buffer);
+   
+   ReadConfig("FREQUENCY_AMALGAMATE", buffer);
+   FREQUENCY_AMALGAMATE = atoi(buffer);
+   
+   ReadConfig("FREQUENCY_BALANCE", buffer);
+   FREQUENCY_BALANCE = atoi(buffer);
+   
+   ReadConfig("FREQUENCY_DEPOSIT_CHECKING", buffer);
+   FREQUENCY_DEPOSIT_CHECKING = atoi(buffer);
+
+   ReadConfig("FREQUENCY_SEND_PAYMENT", buffer);
+   FREQUENCY_SEND_PAYMENT = atoi(buffer);
+   
+   ReadConfig("FREQUENCY_TRANSACT_SAVINGS", buffer);
+   FREQUENCY_TRANSACT_SAVINGS = atoi(buffer);
+   
+   ReadConfig("FREQUENCY_WRITE_CHECK", buffer);
+   FREQUENCY_WRITE_CHECK = atoi(buffer);
 }

@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
 {
     pid_t pid;
     int i,j;
-    int commNum[20]={0};
     if (argc != 2)
     {
         printf("please enter the configure file's name\n");
@@ -56,16 +55,6 @@ int main(int argc, char *argv[])
         InitStorage();
 
         printf("storage process finished.\n");
-
-        for(i=1;i<NODENUM*THREADNUM+1;i++)
-        {
-            for(j=0;j<12;j++)
-                commNum[j]+=CommTimes[i][j];
-        }
-
-        printf("count for communications times:\n");
-        for(i=0;i<12;i++)
-            printf("%4d : %d times\n", i, commNum[i]);
 /*
         for(i=0;i<9;i++)
         {

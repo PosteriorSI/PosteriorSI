@@ -2,12 +2,14 @@
 #define SOCKET_H_
 
 #include "type.h"
+#include "transactions.h"
+
 #define NODENUM nodenum
 #define THREADNUM threadnum
 
 #define NODENUMMAX 50
 #define THREADNUMMAX 64
-#define LINEMAX 20
+#define LINEMAX 100
 
 #define SEND_BUFFER_MAXSIZE 100
 #define RECV_BUFFER_MAXSIZE 1000
@@ -32,6 +34,16 @@ extern int twoNodeWeight;
 
 extern int redo_limit;
 
+//hotspot control
+extern int HOTSPOT_PERCENTAGE;
+extern int HOTSPOT_FIXED_SIZE;
+
+//duration control
+extern int extension_limit;
+
+//random read control
+extern int random_read_limit;
+
 extern int recordfd;
 extern int nodeid;
 extern int message_port;
@@ -46,10 +58,6 @@ extern int param_socket;
 
 extern char master_ip[20];
 extern char local_ip[20];
-
-extern uint32_t** CommTimes;
-
-extern void InitCommTimes(void);
 
 
 extern void InitRecordClient(void);

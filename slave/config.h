@@ -16,6 +16,9 @@
  * parameters configurations here.
  */
 
+#define TPCC_TABLENUM  9
+#define SMALLBANK_TABLENUM 3
+
 extern int configWhseCount;
 
 extern  int configDistPerWhse;

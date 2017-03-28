@@ -9,9 +9,6 @@
 #include "transactions.h"
 #include "data.h"
 
-#define TPCC_TABLENUM  9
-#define SMALLBANK_TABLENUM 3
-
 int configWhseCount;
 
 int configDistPerWhse;

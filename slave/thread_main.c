@@ -114,8 +114,6 @@ void InitTransaction(void)
 
 void InitStorage(void)
 {
-    InitCommTimes();
-
     InitServerBuffer();
     InitRecord();
     InitTransactionList();
@@ -301,11 +299,12 @@ void EndReport(TransState* StateInfo, int terminals)
 
         in_addr_t help = inet_addr(local_ip);
 
-        uint64_t buf[4];
+        uint64_t buf[5];
         buf[0] = (uint64_t)help;
         buf[1] = (uint64_t)tpmC;
         buf[2] = (uint64_t)tpmTotal;
         buf[3] = transactionAbort;
+        buf[4] = transactionCount;
         int ret;
         ret = send(recordfd, buf, sizeof(buf), 0);
         if (ret == -1)
